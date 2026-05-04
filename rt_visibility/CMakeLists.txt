@@ -31,7 +31,9 @@ project(optix_tracer LANGUAGES CXX CUDA)
 include_directories(./)
 
 add_library(rt_visibility_lib
+    preprocess.cu
     visibility_impl.cu
+    visibility_n_chunk_impl.cu
     ../geometry/triangle_utils.cu
 )
 target_link_libraries(rt_visibility_lib PUBLIC
@@ -52,13 +54,25 @@ target_link_libraries(optix_tracer_baseline PRIVATE
 # Set the property for PTX compilation
 set_property(TARGET optix_tracer_baseline PROPERTY CUDA_PTX_COMPILATION ON)
 
-# Add a custom command to copy the *.ptx file to the ptx directory
-add_custom_target(copy_baseline_ptx_to_ptx_dir
+add_library(optix_tracer_n_chunks OBJECT trace_n_chunks.cu)
+target_link_libraries(optix_tracer_n_chunks PRIVATE
+    optixBaseLib
+)
+set_property(TARGET optix_tracer_n_chunks PROPERTY CUDA_PTX_COMPILATION ON)
+
+# Add a custom command to copy the *.ptx files to the ptx directory
+add_custom_target(copy_ptx_to_ptx_dir
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/ptx
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
             $<TARGET_OBJECTS:optix_tracer_baseline>
             ${CMAKE_BINARY_DIR}/ptx/trace_baseline.ptx
-    COMMENT "Copying trace_baseline.ptx to ptx directory"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_OBJECTS:optix_tracer_n_chunks>
+            ${CMAKE_BINARY_DIR}/ptx/trace_n_chunks.ptx
+    COMMENT "Copying OptiX PTX files to ptx directory"
 )
-# Copy only after the forward.ptx file is generated
-add_dependencies(copy_baseline_ptx_to_ptx_dir optix_tracer_baseline)
+# Copy only after the PTX files are generated
+add_dependencies(copy_ptx_to_ptx_dir
+    optix_tracer_baseline
+    optix_tracer_n_chunks
+)

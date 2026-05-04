@@ -43,6 +43,11 @@ target_link_libraries(optix_common INTERFACE
 add_subdirectory(optix_base)
 add_subdirectory(rt_visibility)
 
+option(RTVIS_BUILD_PYTHON "Build Python bindings" OFF)
+if(RTVIS_BUILD_PYTHON)
+    add_subdirectory(python)
+endif()
+
 add_executable(rt_visibility_test
     test.cpp
 )
@@ -56,4 +61,4 @@ target_compile_definitions(rt_visibility_test PRIVATE
     RTVIS_PTX_DIR="${CMAKE_BINARY_DIR}/ptx/"
     RTVIS_TEST_DATASET="${CMAKE_SOURCE_DIR}/testDataset/temp_decimate.bin"
 )
-add_dependencies(rt_visibility_test copy_baseline_ptx_to_ptx_dir)
+add_dependencies(rt_visibility_test copy_ptx_to_ptx_dir)

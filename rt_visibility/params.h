@@ -26,3 +26,19 @@ public:
 	float sigma;
 	float inv2SigmaSq;
 };
+
+class RTVisParamsNChunks : public LaunchParams {
+public:
+	float3* vertex; uint vSize;
+	float3* cam; uint cSize;
+	uint2* segment; uint sSize;
+    
+    uint2* segMinMaxIdx;
+    float2* segMinMaxDistance;
+
+	Tetrahedron* dTet;
+	cell_info_t* dWeight;
+
+	float sigma;
+	float inv2SigmaSq;
+};
