@@ -34,12 +34,11 @@ __global__ void __kernel_source_sink_update__(cell_info_t* cell_infos, const uin
 		return;
 
     const uint2 minMaxIdx = segMinMaxIDX[tIdx];
-    const float2 minMaxDist = segMinMaxDist[tIdx];
-
-    if(minMaxIdx.x != UINT_MAX && minMaxDist.x < 1e8f){
+    
+    if(minMaxIdx.x != UINT_MAX){
         cell_infos[minMaxIdx.x].s = (float)(INT_MAX / 8);
     }
-    if(minMaxIdx.y != UINT_MAX && minMaxDist.y >= 0.0f){
+    if(minMaxIdx.y != UINT_MAX){
         atomicAdd(&cell_infos[minMaxIdx.y].t, 1.0f);
     }
 }
